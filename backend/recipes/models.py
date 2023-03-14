@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinValueValidator
 from django.contrib.auth import get_user_model
 # временно, пока нет модели юзера
 
@@ -17,7 +18,7 @@ class Tag(models.Model):
         verbose_name_plural = 'Теги'
 
     def __str__(self):
-        return self.slug
+        return self.name
 
 
 class Ingredient(models.Model):
@@ -40,13 +41,18 @@ class Ingredient(models.Model):
         return self.name
 
 
-class Recipe(models.MOdel):
+class Recipe(models.Model):
     """Модель для описания Рецепта."""
     name = models.TextField('Название рецепта', max_length=200)
     text = models.TextField('Описание', max_length=3000)
-    cooking_time = models.PositiveSmallIntegerField('Время приготовления')
-    image = models.ImageField('Изображение', blank=True, null=True)
-    # Временно, поле может быть не заполнено
+    cooking_time = models.PositiveSmallIntegerField(
+        'Время приготовления',
+        validators=[MinValueValidator(
+            1, message='Время должно быть больше 1 минуты!'
+        )]
+    )
+    image = models.TextField('Изображение', blank=True, null=True)
+    # Временно, поле сделано текстом и может быть не заполнено
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -60,7 +66,7 @@ class Recipe(models.MOdel):
     )
     ingredients = models.ManyToManyField(
         Ingredient,
-        through='AmountIngredients',
+        through='AmountIngredient',
         related_name='recipes',
         verbose_name='Ингредиент'
     )
@@ -75,21 +81,40 @@ class Recipe(models.MOdel):
         return self.name
 
 
-class AmountIngredients(models.Model):
+class AmountIngredient(models.Model):
     """Промежуточная модель для указания количества ингредиентов."""
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
-    amount = models.PositiveSmallIntegerField('Количество')
+    recipe = models.ForeignKey(
+        Recipe,
+        related_name='amounts',
+        verbose_name='Рецепт',
+        on_delete=models.CASCADE
+    )
+    ingredient = models.ForeignKey(
+        Ingredient,
+        related_name='amounts',
+        verbose_name='Ингредиент',
+        on_delete=models.CASCADE
+    )
+    amount = models.PositiveSmallIntegerField(
+        'Количество',
+        validators=[MinValueValidator(
+            1, message='Количество должно быть больше 1!'
+        )]
+    )
 
     class Meta:
-        verbose_name = 'Количество ингредиента',
-        verbose_name_plural = 'Количество ингредиентов',
+        verbose_name = 'Количество ингредиента'
+        verbose_name_plural = 'Количество ингредиентов'
         constraints = [
             models.UniqueConstraint(
                 fields=['recipe', 'ingredient'],
                 name='unique_recipe_ingredient'
             )
         ]
+
+    def __str__(self):
+        return (f'"{self.recipe.name}": {self.ingredient.name} '
+                f'- {self.amount} {self.ingredient.measurement_unit}')
 
 
 class Favorite(models.Model):
@@ -108,6 +133,8 @@ class Favorite(models.Model):
     )
 
     class Meta:
+        verbose_name = 'Избранный рецепт'
+        verbose_name_plural = 'Избранные рецепты'
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'recipe'],
@@ -132,6 +159,8 @@ class ShoppingCart(models.Model):
     )
 
     class Meta:
+        verbose_name = 'Рецепт в продуктовой корзине'
+        verbose_name_plural = 'Рецепты в продуктовой корзине'
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'recipe'],
@@ -156,6 +185,8 @@ class Subscribe(models.Model):
     )
 
     class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'author'],
