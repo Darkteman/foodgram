@@ -142,6 +142,9 @@ class Favorite(models.Model):
             )
         ]
 
+    def __str__(self):
+        return f'{self.recipe} добавлен в избранное пользователем {self.user}'
+
 
 class ShoppingCart(models.Model):
     """Модель для создания связи рецепт - корзина покупок."""
@@ -168,6 +171,9 @@ class ShoppingCart(models.Model):
             )
         ]
 
+    def __str__(self):
+        return f'{self.recipe} добавлен в список пользователем {self.user}'
+
 
 class Subscribe(models.Model):
     """Модель для оформления подписки на автора."""
@@ -193,3 +199,6 @@ class Subscribe(models.Model):
                 name='unique_subscribe'
             )
         ]
+
+    def __str__(self):
+        return f'{self.user} подписан на пользователя {self.author}'

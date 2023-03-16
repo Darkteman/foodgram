@@ -1,6 +1,19 @@
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
+
+from .views import TagViewSet, IngredientViewSet
+
+
+router = DefaultRouter()
+router.register('tags', TagViewSet)
+router.register('ingredients', IngredientViewSet, basename='ingredient')
+
+urlpatterns = [
+    path('', include(router.urls)),
+
+]
+
 """
 router = DefaultRouter()
 router.register('users', UserViewSet)
@@ -27,5 +40,8 @@ urlpatterns = [
     path('users/set_password/', set_password),
     path('auth/token/login/', create_token),
     path('auth/token/logout/', remove_token),
+
+    path('ingredients/', IngredientList.as_view()),
+    path('ingredients/', IngredientDetail.as_view())
 ]
 """
