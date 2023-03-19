@@ -8,9 +8,9 @@ User = get_user_model()
 
 class Tag(models.Model):
     """Модель для описания Тэга."""
-    name = models.CharField('Название тега', unique=True, max_length=100)
+    name = models.CharField('Название тега', unique=True, max_length=200)
     color = models.CharField('Цвет', max_length=7)
-    slug = models.SlugField('Сокращенное название', unique=True, max_length=50)
+    slug = models.SlugField('Сокращенное название', unique=True, max_length=200)
 
     class Meta:
         ordering = ('name',)
@@ -24,7 +24,7 @@ class Tag(models.Model):
 class Ingredient(models.Model):
     """Модель для описания Ингредиента."""
     name = models.TextField('Название ингредиента', max_length=200)
-    measurement_unit = models.CharField('Единицы измерения', max_length=100)
+    measurement_unit = models.CharField('Единицы измерения', max_length=200)
 
     class Meta:
         ordering = ('name',)
@@ -38,7 +38,7 @@ class Ingredient(models.Model):
         ]
 
     def __str__(self):
-        return self.name
+        return f'{self.name} {self.measurement_unit}'
 
 
 class Recipe(models.Model):
@@ -46,13 +46,14 @@ class Recipe(models.Model):
     name = models.TextField('Название рецепта', max_length=200)
     text = models.TextField('Описание', max_length=3000)
     cooking_time = models.PositiveSmallIntegerField(
-        'Время приготовления',
+        'Время приготовления (мин.)',
         validators=[MinValueValidator(
             1, message='Время должно быть больше 1 минуты!'
         )]
     )
     image = models.TextField('Изображение', blank=True, null=True)
     # Временно, поле сделано текстом и может быть не заполнено
+    # image = models.ImageField('Картинка', upload_to='recipes/images/')
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
