@@ -25,7 +25,7 @@ class AmountIngredientInline(admin.TabularInline):
 
 
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'color', 'slug')
+    list_display = ('id', 'name', 'author')
     list_filter = ('name', 'author', 'tags')
     inline = (AmountIngredientInline,)
 
