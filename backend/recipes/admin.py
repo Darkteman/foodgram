@@ -27,7 +27,7 @@ class AmountIngredientInline(admin.TabularInline):
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'author')
     list_filter = ('name', 'author', 'tags')
-    inline = (AmountIngredientInline,)
+    inlines = (AmountIngredientInline,)
 
 
 class FavoriteAdmin(admin.ModelAdmin):
@@ -43,7 +43,7 @@ class ShoppingCartAdmin(admin.ModelAdmin):
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(Recipe, RecipeAdmin)
-admin.site.register(AmountIngredient)
+# admin.site.register(AmountIngredient)
 admin.site.register(Favorite, FavoriteAdmin)
 admin.site.register(ShoppingCart, ShoppingCartAdmin)
 admin.site.register(Subscribe, SubscribeAdmin)
