@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import TagViewSet, IngredientViewSet, SubscribeView, RecipeViewSet
+from .views import TagViewSet, IngredientViewSet, SubscribeView, RecipeViewSet, SubscriptionsView
 
 
 router = DefaultRouter()
@@ -14,7 +14,8 @@ urlpatterns = [
     path('', include(router.urls)),
     path('', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),
-    path('users/<int:user_id>/subscribe/', SubscribeView.as_view())
+    path('users/<int:user_id>/subscribe/', SubscribeView.as_view()),
+    path('users/subscriptions/', SubscriptionsView.as_view())
 ]
 
 """

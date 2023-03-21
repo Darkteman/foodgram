@@ -10,35 +10,38 @@ from rest_framework.permissions import SAFE_METHODS
 
 from recipes.models import Tag, Ingredient, Subscribe, Recipe
 from users.models import User
-from .serializers import TagSerializer, IngredientSerializer, RecipeSerializer, RecipeCreateUpdateSerializer
+from .serializers import TagSerializer, IngredientSerializer, RecipeSerializer, RecipeCreateUpdateSerializer, CustomUserSerializer, SubscribeSerializer
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
+    """Представление для рецептов."""
     queryset = Recipe.objects.all()
-    serializer_class = RecipeCreateUpdateSerializer
 
-    # def get_serializer_class(self):
-    #     if self.request.method in SAFE_METHODS:
-    #         return RecipeSerializer
-    #     return RecipeCreateUpdateSerializer
+    def get_serializer_class(self):
+        if self.request.method in SAFE_METHODS:
+            return RecipeSerializer
+        return RecipeCreateUpdateSerializer
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
+    """Представление для ингредиентов."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
+    """Представление для тэгов."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
 
 
 class SubscribeView(APIView):
+    """Осуществление подписки(отписки) на(от) автора рецепта."""
     def post(self, request, user_id):
         author = get_object_or_404(User, id=user_id)
         if author != request.user:
@@ -47,8 +50,9 @@ class SubscribeView(APIView):
                 author=author
             )
             if created:
-                # Временный вывод инфы, так как не настроена сериализация с рецептами
-                return Response({'message': 'Всё чики брики, подписано!'},
+                serializer = SubscribeSerializer(author,
+                                                 context={'request': request})
+                return Response(serializer.data,
                                 status=status.HTTP_201_CREATED)
             return Response({"errors": "Подписка уже существует!"},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -67,6 +71,9 @@ class SubscribeView(APIView):
             return Response({"errors": "Предварительной подписки не было!"},
                             status=status.HTTP_400_BAD_REQUEST)
 
+
+class SubscriptionsView(APIView):
+    def get(self, request):
 
 
 
