@@ -95,8 +95,8 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class AmountIngredientSerializer(serializers.ModelSerializer):
     """
-    Сериализатор для модели Ingredient.
-    Используется при выводе информации об ингредиенте.
+    Вложенный сериализатор по модели AmountIngredient.
+    Используется через RecipeSerializer для поля ингредиентов.
     """
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
@@ -139,10 +139,11 @@ class RecipeSerializer(serializers.ModelSerializer):
                                                 recipe=obj).exists())
 
 
-class AmountIngredientSerializer(serializers.ModelSerializer):
+class AddIngredientSerializer(serializers.ModelSerializer):
     """
-    Промежуточный сериализатор для модели AmountIngredient.
+    Вложенный сериализатор по модели AmountIngredient.
     Связывает ингредиент (по id) и соответсвующее ему количество.
+    Используется через RecipeCreateUpdateSerializer.
     """
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
 
@@ -156,7 +157,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     Сериализатор для модели Recipe.
     Используется при вводе и редактировании информации о рецепте.
     """
-    ingredients = AmountIngredientSerializer(many=True)
+    ingredients = AddIngredientSerializer(many=True)
 
     class Meta:
         model = Recipe

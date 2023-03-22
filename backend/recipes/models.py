@@ -51,7 +51,7 @@ class Recipe(models.Model):
     )
     image = models.TextField('Изображение', blank=True, null=True)
     # Временно, поле сделано текстом и может быть не заполнено
-    # image = models.ImageField('Картинка', upload_to='recipes/images/')
+    # image = models.ImageField('Изображение', upload_to='recipes/images/')
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
