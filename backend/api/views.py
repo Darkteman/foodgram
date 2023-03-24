@@ -1,13 +1,14 @@
 from datetime import date
 
 from django.shortcuts import get_object_or_404
-from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from django.db.models import Sum
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework.response import Response
+from rest_framework.filters import SearchFilter
 from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
@@ -19,12 +20,16 @@ from .serializers import (TagSerializer, IngredientSerializer,
                           RecipeSerializer, RecipeCreateUpdateSerializer,
                           SubscribeSerializer, ShortRecipeSerializer)
 from .permissions import IsAuthorOrReadOnly
+from .utils import create_relations, delete_relations
+from .filters import RecipeFilter
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     """Представление для рецептов."""
     queryset = Recipe.objects.all()
     permission_classes = [IsAuthorOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = RecipeFilter
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
@@ -34,13 +39,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    @action(detail=False, methods=['get'],
+            permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request):
         """Вывод файла с консолидированным количеством ингредиентов."""
         user = request.user
+        # оставлять обработку пустой корзины?
+        # в тз не требуется, но по сути надо бы)
         if not user.shopping.exists():
-            return Response('В корзине нет товаров')
-        shopping_list = 'Foodgram\nИнгредиенты из списка покупок:\n\n'
+            return Response('В корзине нет товаров!')
+        shopping_list = 'Foodgram\nСписок покупок:\n\n'
         ingredients = AmountIngredient.objects.filter(
             recipe__shopping__user=user).values(
             'ingredient__name', 'ingredient__measurement_unit').annotate(
@@ -61,6 +69,9 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
+    # проверить фильтр на постгресе
+    filter_backends = [SearchFilter]
+    search_fields = ('^name',)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -106,38 +117,6 @@ class ShoppingCartView(APIView):
     def delete(self, request, recipe_id):
         return delete_relations(request, recipe_id,
                                 Recipe, ShoppingCart, 'recipe')
-
-
-def create_relations(request, obj, related_model, name_serializer, field):
-    """Универсальная функция для создания связей между моделями."""
-    kwargs = record_kwargs(request, obj, field)
-    created_obj, created = related_model.objects.get_or_create(**kwargs)
-    if created:
-        serializer = name_serializer(obj, context={'request': request})
-        return Response(serializer.data,
-                        status=status.HTTP_201_CREATED)
-    return Response({"errors": "Связь уже существует!"},
-                    status=status.HTTP_400_BAD_REQUEST)
-
-
-def delete_relations(request, id, model, related_model, field):
-    """Универсальная функция для удаления связей между моделями."""
-    obj = get_object_or_404(model, id=id)
-    kwargs = record_kwargs(request, obj, field)
-    try:
-        related_model.objects.get(**kwargs).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-    except ObjectDoesNotExist:
-        return Response({"errors": "Отсутствует предварительная связь!"},
-                        status=status.HTTP_400_BAD_REQUEST)
-
-
-def record_kwargs(request, obj, field):
-    """Формирование словаря для передачи в менеджер модели."""
-    kwargs = {}
-    kwargs['user'] = request.user
-    kwargs[field] = obj
-    return kwargs
 
 
 class SubscriptionsView(generics.ListAPIView):
