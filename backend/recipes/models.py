@@ -56,8 +56,6 @@ class Recipe(models.Model):
             1, message='Время должно быть больше 1 минуты!'
         )]
     )
-    # image = models.TextField('Изображение', blank=True, null=True)
-    # Временно, поле сделано текстом и может быть не заполнено
     image = models.ImageField('Изображение', upload_to='recipes/images/')
     author = models.ForeignKey(
         User,
