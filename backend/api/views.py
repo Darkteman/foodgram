@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from django.db.models import Sum
 from django_filters.rest_framework import DjangoFilterBackend
+from djoser.views import UserViewSet
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework import generics
@@ -25,7 +26,11 @@ from .filters import RecipeFilter
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    """Представление для рецептов."""
+    """
+    Представление для рецептов.
+    Фильтрация по автору, тегам, нахождению в избранном и списке покупок.
+    Через download_shopping_cart можно скачать txt список покупок.
+    """
     queryset = Recipe.objects.all()
     permission_classes = [IsAuthorOrReadOnly]
     filter_backends = [DjangoFilterBackend]
@@ -65,24 +70,30 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
-    """Представление для ингредиентов."""
+    """
+    Представление для ингредиентов.
+    Поиск по первому вхождению в поле name.
+    """
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
-    # проверить фильтр на постгресе
     filter_backends = [SearchFilter]
     search_fields = ('^name',)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
-    """Представление для тэгов."""
+    """
+    Представление для тегов.
+    """
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
 
 
 class SubscribeView(APIView):
-    """Подписка на автора рецепта."""
+    """
+    Подписка на автора рецепта.
+    """
     def post(self, request, user_id):
         author = get_object_or_404(User, id=user_id)
         if author != request.user:
@@ -96,7 +107,9 @@ class SubscribeView(APIView):
 
 
 class FavoriteView(APIView):
-    """Добавление рецепта в избранное."""
+    """
+    Добавление рецепта в избранное.
+    """
     def post(self, request, recipe_id):
         recipe = get_object_or_404(Recipe, id=recipe_id)
         return create_relations(request, recipe, Favorite,
@@ -108,7 +121,9 @@ class FavoriteView(APIView):
 
 
 class ShoppingCartView(APIView):
-    """Добавление рецепта в список покупок."""
+    """
+    Добавление рецепта в список покупок.
+    """
     def post(self, request, recipe_id):
         recipe = get_object_or_404(Recipe, id=recipe_id)
         return create_relations(request, recipe, ShoppingCart,
@@ -120,9 +135,23 @@ class ShoppingCartView(APIView):
 
 
 class SubscriptionsView(generics.ListAPIView):
-    """Вывод списка подписок пользователя."""
+    """
+    Вывод списка подписок пользователя.
+    """
     serializer_class = SubscribeSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return User.objects.filter(subscribers__user=self.request.user)
+
+
+class CustomUserViewSet(UserViewSet):
+    """
+    Расширеное представление по UserViewSet Djoser'а.
+    Используется для переопределения прав доступа
+    к эндпоинту /me/.
+    """
+    def get_permissions(self):
+        if self.action == 'me':
+            self.permission_classes = [IsAuthenticated]
+        return super().get_permissions()

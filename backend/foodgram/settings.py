@@ -63,7 +63,8 @@ DJOSER = {
     'LOGIN_FIELD': 'email',
     'PERMISSIONS': {
         'user_list': ['rest_framework.permissions.AllowAny'],
-        'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
+        'user': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
+
     },
     'SERIALIZERS': {
         'user': 'api.serializers.CustomUserSerializer',
@@ -154,7 +155,7 @@ STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = 'users.User'
 
-# MEDIA_URL = '/media/'
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

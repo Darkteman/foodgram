@@ -4,13 +4,14 @@ from rest_framework.routers import DefaultRouter
 
 from .views import (TagViewSet, IngredientViewSet,
                     SubscribeView, RecipeViewSet,
-                    SubscriptionsView, FavoriteView, ShoppingCartView)
+                    SubscriptionsView, FavoriteView, ShoppingCartView, CustomUserViewSet)
 
 
 router = DefaultRouter()
 router.register('tags', TagViewSet)
 router.register('ingredients', IngredientViewSet, basename='ingredient')
 router.register('recipes', RecipeViewSet)
+router.register('users', CustomUserViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

@@ -5,7 +5,9 @@ from django.core.exceptions import ObjectDoesNotExist
 
 
 def create_relations(request, obj, related_model, name_serializer, field):
-    """Универсальная функция для создания связей между моделями."""
+    """
+    Универсальная функция для создания связей между моделями.
+    """
     kwargs = record_kwargs(request, obj, field)
     created_obj, created = related_model.objects.get_or_create(**kwargs)
     if created:
@@ -17,7 +19,9 @@ def create_relations(request, obj, related_model, name_serializer, field):
 
 
 def delete_relations(request, id, model, related_model, field):
-    """Универсальная функция для удаления связей между моделями."""
+    """
+    Универсальная функция для удаления связей между моделями.
+    """
     obj = get_object_or_404(model, id=id)
     kwargs = record_kwargs(request, obj, field)
     try:
@@ -29,7 +33,9 @@ def delete_relations(request, id, model, related_model, field):
 
 
 def record_kwargs(request, obj, field):
-    """Формирование словаря для передачи в менеджер модели."""
+    """
+    Формирование словаря для передачи в менеджер модели.
+    """
     kwargs = {}
     kwargs['user'] = request.user
     kwargs[field] = obj

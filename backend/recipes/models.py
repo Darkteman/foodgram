@@ -5,10 +5,13 @@ from users.models import User
 
 
 class Tag(models.Model):
-    """Модель для описания Тэга."""
+    """
+    Модель для описания Тега.
+    """
     name = models.CharField('Название тега', unique=True, max_length=200)
     color = models.CharField('Цвет', max_length=7)
-    slug = models.SlugField('Сокращенное название', unique=True, max_length=200)
+    slug = models.SlugField('Сокращенное название',
+                            unique=True, max_length=200)
 
     class Meta:
         ordering = ('name',)
@@ -20,7 +23,9 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    """Модель для описания Ингредиента."""
+    """
+    Модель для описания Ингредиента.
+    """
     name = models.TextField('Название ингредиента', max_length=200)
     measurement_unit = models.CharField('Единицы измерения', max_length=200)
 
@@ -40,7 +45,9 @@ class Ingredient(models.Model):
 
 
 class Recipe(models.Model):
-    """Модель для описания Рецепта."""
+    """
+    Модель для описания Рецепта.
+    """
     name = models.TextField('Название рецепта', max_length=200)
     text = models.TextField('Описание', max_length=3000)
     cooking_time = models.PositiveSmallIntegerField(
@@ -49,9 +56,9 @@ class Recipe(models.Model):
             1, message='Время должно быть больше 1 минуты!'
         )]
     )
-    image = models.TextField('Изображение', blank=True, null=True)
+    # image = models.TextField('Изображение', blank=True, null=True)
     # Временно, поле сделано текстом и может быть не заполнено
-    # image = models.ImageField('Изображение', upload_to='recipes/images/')
+    image = models.ImageField('Изображение', upload_to='recipes/images/')
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -81,7 +88,9 @@ class Recipe(models.Model):
 
 
 class AmountIngredient(models.Model):
-    """Промежуточная модель для указания количества ингредиентов."""
+    """
+    Промежуточная модель для указания количества ингредиентов.
+    """
     recipe = models.ForeignKey(
         Recipe,
         related_name='amounts',
@@ -117,7 +126,9 @@ class AmountIngredient(models.Model):
 
 
 class Favorite(models.Model):
-    """Модель для создания связи рецепт - избранное."""
+    """
+    Модель для создания связи рецепт - избранное.
+    """
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -146,7 +157,9 @@ class Favorite(models.Model):
 
 
 class ShoppingCart(models.Model):
-    """Модель для создания связи рецепт - корзина покупок."""
+    """
+    Модель для создания связи рецепт - корзина покупок.
+    """
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -175,7 +188,9 @@ class ShoppingCart(models.Model):
 
 
 class Subscribe(models.Model):
-    """Модель для оформления подписки на автора."""
+    """
+    Модель для оформления подписки на автора.
+    """
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
