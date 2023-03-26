@@ -130,7 +130,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                                              many=True, source='amounts')
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    image = Base64ImageField()
+
 
     class Meta:
         model = Recipe
@@ -170,6 +170,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     Используется при вводе и редактировании информации о рецепте.
     """
     ingredients = AddIngredientSerializer(many=True)
+    image = Base64ImageField()
 
     class Meta:
         model = Recipe
