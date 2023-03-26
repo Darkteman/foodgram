@@ -1,9 +1,11 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 
 
 class User(AbstractUser):
-    """Модель для описания полей Пользователя."""
+    """
+    Модель для описания полей Пользователя.
+    """
     email = models.EmailField('Почта', max_length=254, unique=True)
     username = models.CharField('Юзернэйм', max_length=150, unique=True)
     first_name = models.CharField('Имя', max_length=150)

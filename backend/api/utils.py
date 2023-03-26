@@ -1,7 +1,7 @@
-from rest_framework.response import Response
-from rest_framework import status
-from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import get_object_or_404
+from rest_framework import status
+from rest_framework.response import Response
 
 
 def create_relations(request, obj, related_model, name_serializer, field):

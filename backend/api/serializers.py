@@ -1,12 +1,10 @@
-# import base64
-from drf_extra_fields.fields import Base64ImageField
-# from django.core.files.base import ContentFile
 from djoser.serializers import UserCreateSerializer, UserSerializer
+from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
+from recipes.models import (AmountIngredient, Favorite, Ingredient,
+                            Recipe, ShoppingCart, Subscribe, Tag)
 from users.models import User
-from recipes.models import (Tag, Ingredient, Subscribe, Recipe,
-                            AmountIngredient, Favorite, ShoppingCart)
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
@@ -110,15 +108,6 @@ class AmountIngredientSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
-# class Base64ImageField(serializers.ImageField):
-#     def to_internal_value(self, data):
-#         if isinstance(data, str) and data.startswith('data:image'):
-#             format, imgstr = data.split(';base64,')
-#             ext = format.split('/')[-1]
-#             data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-#         return super().to_internal_value(data)
-
-
 class RecipeSerializer(serializers.ModelSerializer):
     """
     Сериализатор для модели Recipe.
@@ -130,7 +119,6 @@ class RecipeSerializer(serializers.ModelSerializer):
                                              many=True, source='amounts')
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-
 
     class Meta:
         model = Recipe

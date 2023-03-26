@@ -1,28 +1,27 @@
 from datetime import date
 
-from django.shortcuts import get_object_or_404
-from django.http import HttpResponse
 from django.db.models import Sum
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
+from rest_framework import generics, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.views import APIView
-from rest_framework import generics
-from rest_framework.response import Response
 from rest_framework.filters import SearchFilter
-from rest_framework import viewsets
-from rest_framework import status
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from recipes.models import (Tag, Ingredient, Subscribe, Recipe,
-                            Favorite, ShoppingCart, AmountIngredient)
+from recipes.models import (AmountIngredient, Favorite, Ingredient, Recipe,
+                            ShoppingCart, Subscribe, Tag)
 from users.models import User
-from .serializers import (TagSerializer, IngredientSerializer,
-                          RecipeSerializer, RecipeCreateUpdateSerializer,
-                          SubscribeSerializer, ShortRecipeSerializer)
-from .permissions import IsAuthorOrReadOnly
-from .utils import create_relations, delete_relations
+
 from .filters import RecipeFilter
+from .permissions import IsAuthorOrReadOnly
+from .serializers import (IngredientSerializer, RecipeCreateUpdateSerializer,
+                          RecipeSerializer, ShortRecipeSerializer,
+                          SubscribeSerializer, TagSerializer)
+from .utils import create_relations, delete_relations
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
