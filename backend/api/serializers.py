@@ -5,6 +5,7 @@ from rest_framework import serializers
 from recipes.models import (AmountIngredient, Favorite, Ingredient,
                             Recipe, ShoppingCart, Subscribe, Tag)
 from users.models import User
+from .filters import recipes_limit
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
@@ -62,11 +63,7 @@ class SubscribeSerializer(CustomUserSerializer):
 
     def get_recipes(self, obj):
         request = self.context.get('request')
-        recipes_limit = request.query_params.get('recipes_limit')
-        if recipes_limit:
-            recipes = obj.recipes.all()[:int(recipes_limit)]
-        else:
-            recipes = obj.recipes.all()
+        recipes = recipes_limit(request, obj)
         return ShortRecipeSerializer(recipes, many=True).data
 
     def get_recipes_count(self, obj):

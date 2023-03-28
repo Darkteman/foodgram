@@ -8,7 +8,8 @@ from djoser.views import UserViewSet
 from rest_framework import generics, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
+from rest_framework.permissions import (SAFE_METHODS, IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -31,7 +32,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     Через download_shopping_cart можно скачать txt список покупок.
     """
     queryset = Recipe.objects.all()
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [IsAuthorOrReadOnly, IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
 
@@ -48,8 +49,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def download_shopping_cart(self, request):
         """Вывод файла с консолидированным количеством ингредиентов."""
         user = request.user
-        # оставлять обработку пустой корзины?
-        # в тз не требуется, но по сути надо бы)
         if not user.shopping.exists():
             return Response('В корзине нет товаров!')
         shopping_list = 'Foodgram\nСписок покупок:\n\n'

@@ -20,14 +20,17 @@ class TagAdmin(admin.ModelAdmin):
 
 class AmountIngredientInline(admin.TabularInline):
     model = AmountIngredient
-    min_num = 1
-    extra = 1
+
+
+class TagsInLine(admin.TabularInline):
+    model = Recipe.tags.through
 
 
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'author')
     list_filter = ('name', 'author', 'tags')
-    inlines = (AmountIngredientInline,)
+    inlines = (AmountIngredientInline, TagsInLine,)
+    exclude = ('tags',)
 
 
 class FavoriteAdmin(admin.ModelAdmin):

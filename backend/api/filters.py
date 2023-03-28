@@ -25,3 +25,16 @@ class RecipeFilter(FilterSet):
         if value:
             return queryset.filter(shopping__user=self.request.user)
         return queryset
+
+
+def recipes_limit(request, obj):
+    """
+    Ограничение количества выводимых рецептов.
+    Используется при выводе подписок пользователя.
+    """
+    limit = request.query_params.get('recipes_limit')
+    if limit:
+        recipes = obj.recipes.all()[:int(limit)]
+    else:
+        recipes = obj.recipes.all()
+    return recipes
