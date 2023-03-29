@@ -27,10 +27,17 @@ class TagsInLine(admin.TabularInline):
 
 
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'author')
+
+    def added_to_favorites_amount(self, obj):
+        return Favorite.objects.filter(recipe=obj).count()
+
+    added_to_favorites_amount.short_description = 'Добавлений в избранное'
+
+    list_display = ('id', 'name', 'author', 'added_to_favorites_amount')
     list_filter = ('name', 'author', 'tags')
     inlines = (AmountIngredientInline, TagsInLine,)
     exclude = ('tags',)
+    readonly_fields = ('added_to_favorites_amount',)
 
 
 class FavoriteAdmin(admin.ModelAdmin):
