@@ -21,11 +21,14 @@ class URLTests(TestCase):
 
     def setUp(self):
         self.guest_client = Client()
-
         self.authorized_client = Client()
         self.authorized_client.force_login(URLTests.user)
 
     def test_tags_ingredients(self):
+        """
+        Проверка доступности ресурсов tags и ingredients.
+        Используется неавторизованный пользователь.
+        """
         url_name = [
             '/api/tags/',
             f'/api/tags/{URLTests.tag.id}/',
@@ -40,6 +43,7 @@ class URLTests(TestCase):
                 self.assertEqual(response.status_code, 401)
 
     def test_users(self):
+        """Проверка доступности ресурса users."""
         url_name = [
             '/api/users/',
             f'/api/users/{URLTests.user.id}/',
@@ -48,7 +52,7 @@ class URLTests(TestCase):
             with self.subTest(address=address):
                 response = self.client.get(address)
                 self.assertEqual(response.status_code, 200)
-
+        # количество пользователей до созданий нового
         users_before = list(User.objects.values_list('id', flat=True))
         post_data = {
             "email": "test@ya.ru",
@@ -62,8 +66,11 @@ class URLTests(TestCase):
             data=post_data,
             follow=True
         )
+        # проверка статуса при создании нового пользователя
         self.assertEqual(response.status_code, 201)
+        # проверка увеличения количества пользователей
         self.assertEqual(User.objects.count(), len(users_before) + 1)
+        # проверка наличия нового пользователя по переданным параметрам
         self.assertTrue(
             User.objects.filter(
                 email=post_data['email'],
@@ -72,24 +79,15 @@ class URLTests(TestCase):
                 last_name=post_data['last_name']
             ).exists()
         )
-        user = User.objects.get(email=post_data['email'])
-        self.authorized_client = Client()
-        self.authorized_client.force_login(user)
+
         post_token_data = {
             'password': post_data['password'],
             'email': post_data['email']
         }
-        response = self.authorized_client.post(
+        response = self.client.post(
             '/api/auth/token/login/',
             data=post_token_data,
             follow=True
         )
+        # проверка генерации токена
         self.assertEqual(response.status_code, 200)
-
-        # token = response.content.decode().strip('{}"').split('":"')[1]
-        # token = 'Token ' + token
-        # data = {
-        #     'Authorization': token
-        # }
-        # response = self.authorized_client.get('/api/users/me/', data=data)
-        # self.assertEqual(response.status_code, 200)
