@@ -47,7 +47,6 @@ jobs:
         with:
           push: true
           context: ./backend/
-          # file: ./backend/Dockerfile
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_back:latest
 
   deploy:
@@ -65,10 +64,7 @@ jobs:
             cd foodgram-project-react/infra
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_back:latest
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_front:v1
-          # sudo docker-compose stop
-          # sudo docker-compose rm backend
-          # sudo docker-compose rm frontend
-          # rm .env
+
             touch .env
             echo SECRET_KEY='${{ secrets.SECRET_KEY }}' >> .env
             echo DEBUG='${{ secrets.DEBUG }}' >> .env
