@@ -17,7 +17,7 @@ from recipes.models import (AmountIngredient, Favorite, Ingredient, Recipe,
                             ShoppingCart, Subscribe, Tag)
 from users.models import User
 
-from .filters import RecipeFilter
+from .filters import IngredientSearchFilter, RecipeFilter
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (IngredientSerializer, RecipeCreateUpdateSerializer,
                           RecipeSerializer, ShortRecipeSerializer,
@@ -75,8 +75,8 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
-    filter_backends = [SearchFilter]
-    search_fields = ('^name', )
+    filter_backends = [IngredientSearchFilter]
+    search_fields = ('^name',)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
