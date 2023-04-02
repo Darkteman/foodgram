@@ -15,7 +15,7 @@ class Command(BaseCommand):
             data = json.load(file)
             for item in data:
                 ingredient, created = Ingredient.objects.get_or_create(
-                    name=item['name'].title(),
+                    name=item['name'].capitalize(),
                     measurement_unit=item['measurement_unit']
                 )
                 if created:
